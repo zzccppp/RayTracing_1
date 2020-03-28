@@ -20,6 +20,7 @@
 #include "core/CommonFunc.h"
 #include "core/tgaimage.h"
 #include "core/ThreadHandler.h"
+#include "shapes/MovingSphere.h"
 
 HittableList random_scene() {
     HittableList world;
@@ -27,9 +28,8 @@ HittableList random_scene() {
     world.add(std::make_shared<Sphere>(
             glm::vec3(0, -1000, 0), 1000.0f, std::make_shared<Lambertian>(glm::vec3(0.5, 0.5, 0.5))));
 
-    int i = 1;
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -9; a < 9; a++) {
+        for (int b = -9; b < 9; b++) {
             auto choose_mat = random_double();
             glm::vec3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
             if (glm::length(center - glm::vec3(4, 0.2, 0)) > 0.9) {
@@ -37,7 +37,8 @@ HittableList random_scene() {
                     // diffuse
                     glm::vec3 albedo = random() * random();
                     world.add(
-                            std::make_shared<Sphere>(center, 0.2, std::make_shared<Lambertian>(albedo)));
+                            std::make_shared<MovingSphere>(center, center + glm::vec3(0, random_double(0, .5), 0), 0.0,
+                                                           1.0, 0.2, std::make_shared<Lambertian>(albedo)));
                 } else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = random(.5, 1);
@@ -81,10 +82,10 @@ int main() {
     glm::vec3 lookat(0, 0, 0);
     glm::vec3 vup(0, 1, 0);
     auto dist_to_focus = 10.0;
-    auto aperture = 0.1;
+    auto aperture = 0.0;
 
 
-    Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    Camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
 
     for (int j = ny - 1; j >= 0; j--) {
@@ -132,5 +133,5 @@ int main() {
     }
      */
     image.flip_vertically();
-    image.write_tga_file("output.tga");
+    image.write_tga_file("output22.tga");
 }

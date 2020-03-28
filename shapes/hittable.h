@@ -14,7 +14,17 @@ struct hit_record {
     float t;
     glm::vec3 p;
     glm::vec3 normal;
-    std::shared_ptr<Material> mat_ptr;;
+    std::shared_ptr<Material> mat_ptr;
+
+    bool front_face;
+
+    float u;
+    float v;
+
+    inline void set_face_normal(const Ray &r, const glm::vec3 &outward_normal) {
+        front_face = dot(r.direction(), outward_normal) < 0;
+        normal = front_face ? outward_normal : -outward_normal;
+    }
 };
 
 class hittable {

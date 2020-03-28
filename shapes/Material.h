@@ -23,7 +23,7 @@ public:
     virtual bool scatter(const Ray &r_in, const hit_record &rec,
                          glm::vec3 &attenuation, Ray &scattered) const {
         glm::vec3 target = rec.p + rec.normal + random_in_unit_sphere();
-        scattered = Ray(rec.p, target - rec.p);
+        scattered = Ray(rec.p, target - rec.p, r_in.time());
         attenuation = albedo;
         return true;
     }
@@ -42,7 +42,7 @@ public:
     virtual bool scatter(const Ray &r_in, const hit_record &rec,
                          glm::vec3 &attenuation, Ray &scattered) const {
         glm::vec3 reflected = reflect(glm::normalize(r_in.direction()), rec.normal);
-        scattered = Ray(rec.p, reflected);
+        scattered = Ray(rec.p, reflected, r_in.time());
         attenuation = albedo;
         return (dot(scattered.direction(), rec.normal) > 0);
     }
@@ -79,8 +79,7 @@ public:
             ni_over_nt = ref_idx;
             cosine = ref_idx * dot(r_in.direction(), rec.normal)
                      / r_in.direction().length();
-        }
-        else {
+        } else {
             outward_normal = rec.normal;
             ni_over_nt = 1.0 / ref_idx;
             cosine = -dot(r_in.direction(), rec.normal)
@@ -89,16 +88,14 @@ public:
 
         if (refract(r_in.direction(), outward_normal, ni_over_nt, refracted)) {
             reflect_prob = schlick(cosine, ref_idx);
-        }
-        else {
+        } else {
             reflect_prob = 1.0;
         }
 
         if (random_double() < reflect_prob) {
-            scattered = Ray(rec.p, reflected);
-        }
-        else {
-            scattered = Ray(rec.p, refracted);
+            scattered = Ray(rec.p, reflected, r_in.time());
+        } else {
+            scattered = Ray(rec.p, refracted, r_in.time());
         }
 
         return true;
