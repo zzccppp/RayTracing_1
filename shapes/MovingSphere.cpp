@@ -39,7 +39,6 @@ bool MovingSphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) 
     }
     return false;
 
-    return false;
 }
 
 MovingSphere::MovingSphere() {}
@@ -52,4 +51,15 @@ MovingSphere::MovingSphere(const glm::vec3 &center0, const glm::vec3 &center1, f
 
 glm::vec3 MovingSphere::center(float time) const {
     return center0 + ((time - time0) / (time1 - time0)) * (center1 - center0);
+}
+
+bool MovingSphere::bounding_box(float t0, float t1, AABB &output_box) const {
+    AABB box0(
+            center(t0) - glm::vec3(radius, radius, radius),
+            center(t0) + glm::vec3(radius, radius, radius));
+    AABB box1(
+            center(t1) - glm::vec3(radius, radius, radius),
+            center(t1) + glm::vec3(radius, radius, radius));
+    output_box = surrounding_box(box0, box1);
+    return true;
 }

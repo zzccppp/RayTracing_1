@@ -3,4 +3,3 @@
 //
 
 #include "hittable.h"
-#include "Material.h"

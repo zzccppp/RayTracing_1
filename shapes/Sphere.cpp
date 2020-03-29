@@ -32,6 +32,13 @@ bool Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const 
     return false;
 }
 
+bool Sphere::bounding_box(float t0, float t1, AABB &output_box) const {
+    output_box = AABB(
+            center - glm::vec3(radius, radius, radius),
+            center + glm::vec3(radius, radius, radius));
+    return true;
+}
+
 glm::vec3 random_in_unit_sphere() {
     glm::vec3 p;
     do {

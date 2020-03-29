@@ -18,3 +18,20 @@ bool HittableList::hit(const Ray &r, float t_min, float t_max, hit_record &rec) 
     }
     return hit_anything;
 }
+
+bool HittableList::bounding_box(float t0, float t1, AABB &output_box) const {
+    if (objects.empty()) return false;
+    AABB temp_box;
+    bool first_true = objects[0]->bounding_box(t0, t1, temp_box);
+
+    if (!first_true) return false;
+
+    output_box = temp_box;
+
+    for (const auto &object : objects) {
+        if (!object->bounding_box(t0, t1, temp_box))
+            return false;
+        output_box = surrounding_box(output_box, temp_box);
+    }
+    return true;
+}

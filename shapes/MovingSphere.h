@@ -16,6 +16,8 @@ public:
 
     bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const override;
 
+    bool bounding_box(float t0, float t1, AABB &output_box) const override;
+
     MovingSphere();
 
     MovingSphere(const glm::vec3 &center0, const glm::vec3 &center1, float time0, float time1, float radius,

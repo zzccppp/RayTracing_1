@@ -6,6 +6,7 @@
 #define RAYTRACING_1_HITTABLE_H
 
 #include "../core/Ray.h"
+#include "../core/AABB.h"
 #include <memory>
 
 class Material;
@@ -29,7 +30,9 @@ struct hit_record {
 
 class hittable {
 public:
-    virtual bool hit(const Ray& r,float t_min,float t_max,hit_record& rec) const = 0;
+    virtual bool hit(const Ray &r, float t_min, float t_max, hit_record &rec) const = 0;
+
+    virtual bool bounding_box(float t0, float t1, AABB &output_box) const = 0;
 };
 
 

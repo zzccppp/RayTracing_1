@@ -19,5 +19,14 @@ inline glm::vec3 random(double min, double max) {
 
 glm::vec3 color(const Ray &r, hittable *world, int depth);
 
+//两个不带nan检查的快速min，max类
+inline double ffmin(float a, float b) { return a <= b ? a : b; }
+
+inline double ffmax(float a, float b) { return a >= b ? a : b; }
+
+inline int random_int(int min, int max) {
+    // Returns a random integer in [min,max].
+    return static_cast<int>(random_double(min, max + 1));
+}
 
 #endif //RAYTRACING_1_COMMONFUNC_H

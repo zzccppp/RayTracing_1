@@ -21,6 +21,7 @@
 #include "core/tgaimage.h"
 #include "core/ThreadHandler.h"
 #include "shapes/MovingSphere.h"
+#include "core/BVH.h"
 
 HittableList random_scene() {
     HittableList world;
@@ -76,6 +77,7 @@ int main() {
 //    ss << "P3\n" << nx << " " << ny << "\n255\n";
 
     HittableList world = random_scene();
+    BVH tree(world, 0.0, 1.0);
 
     const auto aspect_ratio = double(nx) / ny;
     glm::vec3 lookfrom(13, 2, 3);
@@ -98,7 +100,7 @@ int main() {
                 float u = float(i + random_double()) / float(nx);
                 float v = float(j + random_double()) / float(ny);
                 Ray r = cam.get_ray(u, v);
-                col += color(r, &world, 0);
+                col += color(r, &tree, 0);
             }
             col /= float(ns);
             col = glm::vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2])); //伽马校正
