@@ -9,6 +9,7 @@
 #include "../core/Ray.h"
 #include "hittable.h"
 #include "Sphere.h"
+#include "../core/Texture.h"
 
 class Material {
 public:
@@ -18,17 +19,17 @@ public:
 
 class Lambertian : public Material {
 public:
-    explicit Lambertian(const glm::vec3 &a) : albedo(a) {}
+    explicit Lambertian(std::shared_ptr<Texture> a) : albedo(a) {}
 
     virtual bool scatter(const Ray &r_in, const hit_record &rec,
                          glm::vec3 &attenuation, Ray &scattered) const {
         glm::vec3 target = rec.p + rec.normal + random_in_unit_sphere();
         scattered = Ray(rec.p, target - rec.p, r_in.time());
-        attenuation = albedo;
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
-    glm::vec3 albedo;
+    std::shared_ptr<Texture> albedo;
 };
 
 glm::vec3 reflect(const glm::vec3 &v, const glm::vec3 &n);

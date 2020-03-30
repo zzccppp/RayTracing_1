@@ -16,7 +16,9 @@ bool Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const 
         if (temp < t_max && temp > t_min) {
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
-            rec.normal = (rec.p - center) / radius; //法向量是归一化的
+            glm::vec3 outward_normal = (rec.p - center) / radius;
+            rec.set_face_normal(r, outward_normal);
+            get_sphere_uv((rec.p - center) / radius, rec.u, rec.v);
             rec.mat_ptr = mat_ptr;
             return true;
         }
@@ -24,7 +26,9 @@ bool Sphere::hit(const Ray &r, float t_min, float t_max, hit_record &rec) const 
         if (temp < t_max && temp > t_min) {
             rec.t = temp;
             rec.p = r.point_at_parameter(rec.t);
-            rec.normal = (rec.p - center) / radius;
+            glm::vec3 outward_normal = (rec.p - center) / radius;
+            rec.set_face_normal(r, outward_normal);
+            get_sphere_uv((rec.p - center) / radius, rec.u, rec.v);
             rec.mat_ptr = mat_ptr;
             return true;
         }

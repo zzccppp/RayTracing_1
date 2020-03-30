@@ -40,7 +40,7 @@ void ThreadHandler::compute(Camera *cam, int nx, int ny, int ns, HittableList *w
                 col += color(r, world, 0);
             }
             col /= float(ns);
-            col = glm::vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2])); //伽马校正
+            col = glm::vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);

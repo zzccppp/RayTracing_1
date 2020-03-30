@@ -3,7 +3,6 @@
 //
 
 #include "CommonFunc.h"
-#include "BVH.h"
 
 glm::vec3 color(const Ray &r, hittable *world, int depth) {
     hit_record rec;

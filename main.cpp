@@ -27,7 +27,8 @@ HittableList random_scene() {
     HittableList world;
 
     world.add(std::make_shared<Sphere>(
-            glm::vec3(0, -1000, 0), 1000.0f, std::make_shared<Lambertian>(glm::vec3(0.5, 0.5, 0.5))));
+            glm::vec3(0, -1000, 0), 1000.0f,
+            std::make_shared<Lambertian>(std::make_shared<ConstantTexture>(glm::vec3(0.5, 0.5, 0.5)))));
 
     for (int a = -9; a < 9; a++) {
         for (int b = -9; b < 9; b++) {
@@ -39,7 +40,8 @@ HittableList random_scene() {
                     glm::vec3 albedo = random() * random();
                     world.add(
                             std::make_shared<MovingSphere>(center, center + glm::vec3(0, random_double(0, .5), 0), 0.0,
-                                                           1.0, 0.2, std::make_shared<Lambertian>(albedo)));
+                                                           1.0, 0.2, std::make_shared<Lambertian>(
+                                            std::make_shared<ConstantTexture>(albedo))));
                 } else if (choose_mat < 0.95) {
                     // metal
                     auto albedo = random(.5, 1);
@@ -57,17 +59,59 @@ HittableList random_scene() {
     world.add(std::make_shared<Sphere>(glm::vec3(0, 1, 0), 1.0, std::make_shared<Dielectric>(1.5)));
 
     world.add(
-            std::make_shared<Sphere>(glm::vec3(-4, 1, 0), 1.0, std::make_shared<Lambertian>(glm::vec3(0.4, 0.2, 0.1))));
+            std::make_shared<Sphere>(glm::vec3(-4, 1, 0), 1.0, std::make_shared<Lambertian>(
+                    std::make_shared<ConstantTexture>(glm::vec3(0.4, 0.2, 0.1)))));
 
     world.add(
             std::make_shared<Sphere>(glm::vec3(4, 1, 0), 1.0, std::make_shared<Metal>(glm::vec3(0.7, 0.6, 0.5), 0.0)));
 
+    auto checker = std::make_shared<CheckerTexture>(
+            std::make_shared<ConstantTexture>(glm::vec3(0.2, 0.3, 0.1)),
+            std::make_shared<ConstantTexture>(glm::vec3(0.9, 0.9, 0.9))
+    );
+
+    world.add(std::make_shared<Sphere>(glm::vec3(0, -1000, 0), 1000, std::make_shared<Lambertian>(checker)));
+
     return world;
 }
 
+HittableList two_spheres() {
+    HittableList objects;
+
+    auto checker = std::make_shared<CheckerTexture>(
+            std::make_shared<ConstantTexture>(glm::vec3(0.2, 0.3, 0.1)),
+            std::make_shared<ConstantTexture>(glm::vec3(0.9, 0.9, 0.9))
+    );
+
+    objects.add(std::make_shared<Sphere>(glm::vec3(0, -10, 0), 10, std::make_shared<Lambertian>(checker)));
+    objects.add(std::make_shared<Sphere>(glm::vec3(0, 10, 0), 10, std::make_shared<Lambertian>(checker)));
+
+    return objects;
+}
+
+HittableList two_perlin_spheres() {
+    HittableList objects;
+
+    auto pertext = std::make_shared<NoiseTexture>();
+    objects.add(std::make_shared<Sphere>(glm::vec3(0, -1000, 0), 1000, std::make_shared<Lambertian>(pertext)));
+    objects.add(std::make_shared<Sphere>(glm::vec3(0, 2, 0), 2, std::make_shared<Lambertian>(pertext)));
+
+    return objects;
+}
+
+HittableList earth() {
+    int nx, ny, nn;
+    unsigned char *texture_data = stbi_load("../earthmap.jpg", &nx, &ny, &nn, 3);
+    auto earth_surface =
+            std::make_shared<Lambertian>(std::make_shared<ImageTexture>(texture_data, nx, ny));
+    auto globe = std::make_shared<Sphere>(glm::vec3(0, 0, 0), 2, earth_surface);
+
+    return HittableList(globe);
+}
+
 int main() {
-    int nx = 400;
-    int ny = 200;
+    int nx = 200;
+    int ny = 100;
     int ns = 100;
 
     TGAImage image(nx, ny, 3);
@@ -76,7 +120,10 @@ int main() {
 //
 //    ss << "P3\n" << nx << " " << ny << "\n255\n";
 
-    HittableList world = random_scene();
+//    HittableList world = random_scene();
+//    HittableList world = two_spheres();
+//    HittableList world = two_perlin_spheres();
+    HittableList world = earth();
     BVH tree(world, 0.0, 1.0);
 
     const auto aspect_ratio = double(nx) / ny;
@@ -96,14 +143,14 @@ int main() {
 
             glm::vec3 col(0, 0, 0);
 
-            for (int s = 0; s < ns; s++) { // 通过多采样来实现抗锯齿
+            for (int s = 0; s < ns; s++) {
                 float u = float(i + random_double()) / float(nx);
                 float v = float(j + random_double()) / float(ny);
                 Ray r = cam.get_ray(u, v);
                 col += color(r, &tree, 0);
             }
             col /= float(ns);
-            col = glm::vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2])); //伽马校正
+            col = glm::vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
             int ir = int(255.99 * col[0]);
             int ig = int(255.99 * col[1]);
@@ -116,24 +163,6 @@ int main() {
 //    std::string ppm_string = ss.str();
 //
 //    std::cout << ppm_string;
-
-/*
-    int thread_count = 2;
-
-    ThreadHandler th(thread_count, 1, cam, nx, ny, world);
-    th.run();
-    image = th.results[0];
-    for (int i = 1; i < thread_count; i++) {
-        for (int j = ny - 1; j >= 0; j--) {
-            for (int i = 0; i < nx; i++) {
-                TGAColor c((th.results[i].get(i, j).r + image.get(i, j).r) / 2,
-                           (th.results[i].get(i, j).g + image.get(i, j).g) / 2,
-                           (th.results[i].get(i, j).b + image.get(i, j).b) / 2, 0);
-                image.set(i, j, c);
-            }
-        }
-    }
-     */
     image.flip_vertically();
-    image.write_tga_file("output22.tga");
+    image.write_tga_file("output37.tga");
 }

@@ -29,12 +29,9 @@ BVH::BVH(std::vector<std::shared_ptr<hittable>> &objects, size_t start, size_t e
 
     size_t object_span = end - start;
 
-    //递归地建立子树
     if (object_span == 1) {
-        //只有一个就复制为左右树叶
         left = right = objects[start];
     } else if (object_span == 2) {
-        //两个就左右各一个
         if (comparator(objects[start], objects[start + 1])) {
             left = objects[start];
             right = objects[start + 1];

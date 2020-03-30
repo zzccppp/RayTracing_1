@@ -23,7 +23,19 @@ inline double random_double(float a, float b) {
     return rand_generator();
 }
 
-//封装了轴对齐摄像机
+inline glm::vec3 random() {
+    return glm::vec3(random_double(), random_double(), random_double());
+}
+
+inline glm::vec3 random(double min, double max) {
+    return glm::vec3(random_double(min, max), random_double(min, max), random_double(min, max));
+}
+
+inline int random_int(int min, int max) {
+    // Returns a random integer in [min,max].
+    return static_cast<int>(random_double(min, max + 1));
+}
+
 class Camera {
 public:
 
